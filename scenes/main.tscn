@@ -1,29 +1,33 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/game/ship_map.tscn" id="1_ship_map"]
-[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/game/ship_map.tscn" id="2_ship_map"]
 
 [node name="Main" type="Node2D"]
+script = ExtResource("1_main")
 
-[node name="ShipMap" parent="." instance=ExtResource("1_ship_map")]
+[node name="ShipMap" parent="." instance=ExtResource("2_ship_map")]
+
+[node name="Players" type="Node2D" parent="."]
+
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://scenes/player/player.tscn")
+spawn_path = NodePath("../Players")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="HintLabel" type="Label" parent="UI"]
 offset_left = 20.0
 offset_top = 20.0
-offset_right = 700.0
+offset_right = 1100.0
 offset_bottom = 60.0
-text = "WASD / 方向键 移动   |   从 CAFETERIA 到 REACTOR 需要走中间通道"
+text = "WASD / 方向键 移动   |   F5 = Host, 另开终端加 --client 加入"
 theme_override_font_sizes/font_size = 18
 
 [node name="StatusLabel" type="Label" parent="UI"]
 offset_left = 20.0
 offset_top = 670.0
-offset_right = 900.0
+offset_right = 1260.0
 offset_bottom = 710.0
-text = "Phase 1 — 简易地图 ✓  |  当前在 CAFETERIA"
+text = "Initializing..."
 theme_override_font_sizes/font_size = 18
-
-[node name="Player" parent="." instance=ExtResource("2_player")]
-position = Vector2(330, 360)

@@ -1,14 +1,21 @@
 extends CharacterBody2D
 
-# 玩家移动脚本 - Phase 1 单人 Demo
-# WASD 或方向键控制移动
+# Player - 玩家移动脚本（联网版）
+# 只在 owner 端处理输入；其他端只接收位置同步
 
 @export var speed: float = 300.0
 
-func _physics_process(_delta: float) -> void:
-	var input_dir := Vector2.ZERO
+func _ready() -> void:
+	# Spawner 把玩家名设为 peer_id 字符串，据此设置 authority
+	# 这样每个玩家只在自己的客户端响应输入
+	set_multiplayer_authority(int(name))
 
-	# 读取四个方向的输入
+func _physics_process(_delta: float) -> void:
+	# 非 authority 端不做输入处理（位置由 MultiplayerSynchronizer 自动同步）
+	if not is_multiplayer_authority():
+		return
+
+	var input_dir := Vector2.ZERO
 	if Input.is_action_pressed("move_right"):
 		input_dir.x += 1
 	if Input.is_action_pressed("move_left"):
@@ -18,8 +25,5 @@ func _physics_process(_delta: float) -> void:
 	if Input.is_action_pressed("move_up"):
 		input_dir.y -= 1
 
-	# 标准化后乘速度，避免斜向移动比直线更快
 	velocity = input_dir.normalized() * speed
-
-	# CharacterBody2D 自带的移动方法，会自动处理碰撞反弹
 	move_and_slide()
