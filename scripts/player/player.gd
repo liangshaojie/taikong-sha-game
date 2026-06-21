@@ -8,6 +8,7 @@ extends CharacterBody2D
 # 任务交互状态（本地，不同步）
 var _in_task_zone: Node = null
 var _task_progress: float = 0.0
+var _in_vent_zone: String = ""
 
 @onready var sprite: Polygon2D = $Sprite2D
 @onready var collision: CollisionShape2D = $CollisionShape2D
@@ -65,6 +66,21 @@ func _unhandled_input(event: InputEvent) -> void:
 		_try_kill()
 	elif event.is_action_pressed("meeting"):
 		GameManager.request_meeting()
+	elif event.is_action_pressed("vent"):
+		_try_use_vent()
+
+func _try_use_vent() -> void:
+	if not GameManager.am_i_impostor():
+		return
+	if GameManager.vent_cooldown_remaining > 0.0:
+		print("[Player] Vent on cooldown: %.1fs" % GameManager.vent_cooldown_remaining)
+		return
+	var current_vent := VentSystem.get_vent_at_position(global_position)
+	if current_vent.is_empty():
+		print("[Player] Not on a vent")
+		return
+	print("[Player] Opening vent panel at '%s'" % current_vent)
+	GameManager.show_vent_panel(current_vent)
 
 func _try_kill() -> void:
 	if not GameManager.am_i_impostor():
@@ -110,6 +126,22 @@ func _on_task_zone_exited(zone: Node) -> void:
 	if is_multiplayer_authority() and _in_task_zone == zone:
 		_in_task_zone = null
 		_task_progress = 0.0
+
+# === 通风管区域 ===
+
+func _on_vent_zone_entered(vent_id: String) -> void:
+	if is_multiplayer_authority():
+		_in_vent_zone = vent_id
+		# 内鬼进入 vent 区域时自动弹出 UI（方便测试）
+		# 实际游玩中也可以只让玩家按 V 才弹
+		if GameManager.am_i_impostor() and not GameManager.am_i_ghost():
+			if GameManager.game_state == GameManager.State.PLAYING:
+				GameManager.show_vent_panel(vent_id)
+
+func _on_vent_zone_exited(vent_id: String) -> void:
+	if is_multiplayer_authority() and _in_vent_zone == vent_id:
+		_in_vent_zone = ""
+		GameManager.hide_vent_panel()
 
 # === 信号回调 ===
 

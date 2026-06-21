@@ -5,6 +5,7 @@ extends Node2D
 
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player/player.tscn")
 const TASK_ZONE_SCENE: PackedScene = preload("res://scenes/game/task_zone.tscn")
+const VENT_ZONE_SCENE: PackedScene = preload("res://scenes/game/vent_zone.tscn")
 
 @onready var player_spawner: MultiplayerSpawner = $PlayerSpawner
 @onready var status_label: Label = $UI/GameHUD/HintLabel
@@ -12,6 +13,7 @@ const TASK_ZONE_SCENE: PackedScene = preload("res://scenes/game/task_zone.tscn")
 @onready var role_label: Label = $UI/GameHUD/RoleLabel
 @onready var meeting_panel: Control = $UI/MeetingPanel
 @onready var result_panel: Control = $UI/ResultPanel
+@onready var vent_panel: Control = $UI/VentPanel
 
 # 玩家出生点（按 spawn 顺序，每个房间中心）
 # 6 房间：MedBay / Electrical / Storage / Cafeteria / Reactor / Navigation
@@ -52,6 +54,7 @@ func _ready() -> void:
 	# 默认隐藏会议和结算面板
 	meeting_panel.visible = false
 	result_panel.visible = false
+	vent_panel.visible = false
 
 	if Lobby.is_in_game():
 		_on_entered_game()
@@ -77,8 +80,9 @@ func _spawn_player(data: Variant) -> Node:
 	return player
 
 func _on_entered_game() -> void:
-	# 添加任务区
+	# 添加任务区和通风管
 	_spawn_task_zones()
+	_spawn_vent_zones()
 
 	if Lobby.is_host():
 		for info in Lobby.get_player_list():
@@ -118,6 +122,17 @@ func _spawn_task_zones() -> void:
 		$Tasks.add_child(zone)
 		print("[Main] Task zone '%s' at %s" % [info.id, info.pos])
 
+func _spawn_vent_zones() -> void:
+	if not Lobby.is_host():
+		return
+	for vent_id in VentSystem.VENT_POSITIONS:
+		var zone: Node = VENT_ZONE_SCENE.instantiate()
+		zone.name = "Vent_" + vent_id
+		zone.vent_id = vent_id
+		zone.position = VentSystem.VENT_POSITIONS[vent_id]
+		$Tasks.add_child(zone)
+		print("[Main] Vent zone '%s' at %s" % [vent_id, zone.position])
+
 func _on_game_state_changed(new_state: int) -> void:
 	match new_state:
 		GameManager.State.MEETING:
@@ -135,7 +150,7 @@ func _on_role_assigned(role: int) -> void:
 	role_label.text = "身份：%s" % Role.name_zh(role)
 	if role == Role.Kind.IMPOSTOR:
 		role_label.add_theme_color_override("font_color", Color(0.9, 0.4, 0.4))
-		status_label.text = "🔪 按 K 击杀船员   |   按 R 开会"
+		status_label.text = "🔪 K 杀船员   |   🕳 V 钻通风管   |   R 开会"
 	else:
 		role_label.add_theme_color_override("font_color", Color(0.4, 0.8, 0.5))
 		status_label.text = "🛠️ 走到任务点按住 E   |   按 R 开会"

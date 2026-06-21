@@ -12,6 +12,8 @@ signal vote_ended(outed_peer_id: int)         # -1 表示无人出局
 signal game_over(winning_role: int, reason: String)
 signal task_progress_changed(completed: int, total: int)
 signal kill_cooldown_changed(remaining: float)
+signal vent_panel_toggle(show: bool, current_vent: String)
+signal vent_cooldown_changed(remaining: float)
 signal player_revived(peer_id: int)
 
 enum State { LOBBY, ROLE_ASSIGN, PLAYING, MEETING, VOTING, RESULT }
@@ -22,6 +24,7 @@ const KILL_RANGE := 70.0                    # 击杀最大距离（像素）
 const TASK_TOTAL := 3                       # 任务总数
 const TASK_DURATION := 3.0                  # 完成任务需要按住的时间
 const MEETING_COOLDOWN := 15.0              # 紧急会议冷却
+const VENT_COOLDOWN := 10.0                 # 通风管冷却（秒）
 
 # === State ===
 var game_state: int = State.LOBBY
@@ -29,6 +32,7 @@ var my_role: int = Role.Kind.UNKNOWN
 var player_roles: Dictionary = {}           # peer_id -> {role, alive}
 var tasks_completed: int = 0
 var kill_cooldown_remaining: float = 0.0
+var vent_cooldown_remaining: float = 0.0
 var last_meeting_time: float = -999.0
 
 # Server-internal
@@ -85,6 +89,18 @@ func report_task_done(task_id: String) -> void:
 		_server_handle_task_done(multiplayer.get_unique_id(), task_id)
 	else:
 		rpc_id(1, "server_task_done", task_id)
+
+func show_vent_panel(current_vent: String) -> void:
+	vent_panel_toggle.emit(true, current_vent)
+
+func hide_vent_panel() -> void:
+	vent_panel_toggle.emit(false, "")
+
+func request_vent_use(target_vent: String) -> void:
+	if multiplayer.is_server():
+		_server_handle_vent(Lobby.get_my_id(), target_vent)
+	else:
+		rpc_id(1, "server_vent_request", target_vent)
 
 func get_player_role(peer_id: int) -> int:
 	if player_roles.has(peer_id):
@@ -266,6 +282,37 @@ func _server_handle_task_done(peer_id: int, task_id: String) -> void:
 	rpc("client_task_progress", tasks_completed)
 	_check_win_condition()
 
+func _server_handle_vent(impostor_id: int, target_vent: String) -> void:
+	if game_state != State.PLAYING:
+		return
+	if not player_roles.has(impostor_id):
+		return
+	var info: Dictionary = player_roles[impostor_id]
+	if info.role != Role.Kind.IMPOSTOR or not info.alive:
+		return
+	if vent_cooldown_remaining > 0.0:
+		print("[GameManager] Vent rejected: cooldown %.1fs" % vent_cooldown_remaining)
+		return
+	# 获取玩家当前位置，校验是否在 vent 上
+	var player_node := _get_player_node(impostor_id)
+	if not player_node:
+		return
+	var current_vent: String = VentSystem.get_vent_at_position((player_node as Node2D).global_position)
+	if current_vent.is_empty():
+		print("[GameManager] Vent rejected: not on a vent")
+		return
+	# 校验目标 vent 是当前 vent 的邻居
+	var connected: Array = VentSystem.get_connected_vents(current_vent)
+	if not target_vent in connected:
+		print("[GameManager] Vent rejected: %s not connected to %s" % [target_vent, current_vent])
+		return
+	# 验证通过，传送
+	var target_pos: Vector2 = VentSystem.get_vent_position(target_vent)
+	print("[GameManager] Vent: peer %d from '%s' to '%s' (%.0f,%.0f)" % [impostor_id, current_vent, target_vent, target_pos.x, target_pos.y])
+	vent_cooldown_remaining = VENT_COOLDOWN
+	rpc("client_vent_teleport", impostor_id, target_pos)
+	rpc("client_set_vent_cooldown", VENT_COOLDOWN)
+
 func _check_win_condition() -> void:
 	if game_state == State.RESULT:
 		return
@@ -373,6 +420,27 @@ func client_vote_ended(outed_id: int) -> void:
 func client_task_progress(completed: int) -> void:
 	tasks_completed = completed
 	task_progress_changed.emit(completed, TASK_TOTAL)
+
+@rpc("any_peer", "call_remote", "reliable")
+func server_vent_request(target_vent: String) -> void:
+	if not multiplayer.is_server():
+		return
+	_server_handle_vent(multiplayer.get_remote_sender_id(), target_vent)
+
+@rpc("authority", "call_remote", "reliable")
+func client_vent_teleport(impostor_id: int, target_pos: Vector2) -> void:
+	# 所有客户端都更新这个内鬼玩家的位置
+	var player_node := _get_player_node(impostor_id)
+	if player_node:
+		(player_node as Node2D).global_position = target_pos
+
+@rpc("authority", "call_remote", "reliable")
+func client_set_vent_cooldown(cooldown: float) -> void:
+	vent_cooldown_remaining = cooldown
+	vent_cooldown_changed.emit(cooldown)
+	var tween := create_tween()
+	tween.tween_property(self, "vent_cooldown_remaining", 0.0, cooldown)
+	tween.tween_callback(func() -> void: vent_cooldown_changed.emit(0.0))
 
 @rpc("authority", "call_remote", "reliable")
 func client_game_over(winner: int, reason: String) -> void:
