@@ -16,7 +16,7 @@ const PORT := 7777
 const DEFAULT_SERVER_IP := "127.0.0.1"
 const MAX_CONNECTIONS := 10
 
-# 玩家颜色调色板（按 peer_id-1 取模循环）
+# 玩家颜色调色板
 const PLAYER_COLORS: Array[Color] = [
 	Color(0.40, 0.70, 1.00),   # 蓝色  - Host
 	Color(1.00, 0.60, 0.40),   # 橙色
@@ -103,7 +103,13 @@ func get_player_list() -> Array:
 	return list
 
 func get_color_for_peer(peer_id: int) -> Color:
+	# 警告：peer_id 在 Godot 4 里是随机大整数，不适合当数组下标
+	# 仅用于调试/向后兼容；游戏内应该用 get_color_by_index
 	return PLAYER_COLORS[(peer_id - 1) % PLAYER_COLORS.size()]
+
+func get_color_by_index(index: int) -> Color:
+	# 按 spawn 顺序（0, 1, 2...）取颜色，与 peer_id 解耦
+	return PLAYER_COLORS[index % PLAYER_COLORS.size()]
 
 # === RPCs ===
 
@@ -120,6 +126,7 @@ func register_self(info: Dictionary) -> void:
 		return
 	var sender_id := multiplayer.get_remote_sender_id()
 	info["peer_id"] = sender_id
+	# 大厅 UI 显示的颜色仍然按 peer_id（仅用于 UI，不影响游戏内同步）
 	info["color"] = get_color_for_peer(sender_id)
 	var is_new := not players.has(sender_id)
 	players[sender_id] = info

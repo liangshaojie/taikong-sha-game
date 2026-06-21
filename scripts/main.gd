@@ -9,13 +9,22 @@ const PLAYER_SCENE: PackedScene = preload("res://scenes/player/player.tscn")
 @onready var player_spawner: MultiplayerSpawner = $PlayerSpawner
 @onready var status_label: Label = $UI/StatusLabel
 
+# 玩家出生点（按 spawn 顺序 1st, 2nd, 3rd...）
+# 关键：不能用 peer_id 当 key！Godot 的 client peer_id 是随机大整数
 const SPAWN_POSITIONS := {
-	1: Vector2(330, 360),    # Host → CAFETERIA
-	2: Vector2(950, 360),    # First client → REACTOR
+	1: Vector2(330, 360),    # 1st player → CAFETERIA
+	2: Vector2(950, 360),    # 2nd player → REACTOR
 	3: Vector2(640, 540),
-	4: Vector2(440, 540),
-	5: Vector2(840, 540),
 }
+
+# spawn 顺序计数器（服务端本地维护，不复制）
+var _spawn_counter: int = 0
+
+func _grid_spawn_pos(idx: int) -> Vector2:
+	# 4×N 网格布局，处理 4 个以上的玩家
+	var col: int = (idx - 1) % 4
+	var row: int = (idx - 1) / 4
+	return Vector2(160 + col * 320, 150 + row * 140)
 
 func _ready() -> void:
 	player_spawner.spawn_function = _spawn_player
@@ -74,8 +83,10 @@ func _spawn_player_for_info(info: Dictionary) -> void:
 	if not Lobby.is_host():
 		return
 	var peer_id: int = info.peer_id
-	var spawn_pos: Vector2 = SPAWN_POSITIONS.get(peer_id, Vector2(640, 360 + peer_id * 40))
-	var color: Color = info.get("color", Color.WHITE)
+	_spawn_counter += 1
+	var spawn_pos: Vector2 = SPAWN_POSITIONS.get(_spawn_counter, _grid_spawn_pos(_spawn_counter))
+	var color: Color = Lobby.get_color_by_index(_spawn_counter - 1)
+	print("[Main] Spawn peer %d (slot %d) at %s color=%s" % [peer_id, _spawn_counter, spawn_pos, color])
 	player_spawner.spawn({
 		"peer_id": peer_id,
 		"spawn_pos": spawn_pos,
