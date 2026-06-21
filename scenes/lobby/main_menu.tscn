@@ -1,0 +1,138 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1_menu"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.09, 0.14, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 32
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "🚀 TaikongSha 太空杀"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 40
+
+[node name="SubtitleLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "社交推理多人游戏"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="NameRow" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/NameRow"]
+layout_mode = 2
+text = "玩家名字："
+theme_override_font_sizes/font_size = 18
+
+[node name="NameInput" type="LineEdit" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/NameRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "输入你的名字"
+theme_override_font_sizes/font_size = 20
+
+[node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HostButton" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/ButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 50)
+text = "🏠 创建房间"
+theme_override_font_sizes/font_size = 22
+
+[node name="JoinButton" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/ButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 50)
+text = "🚪 加入房间"
+theme_override_font_sizes/font_size = 22
+
+[node name="JoinPanel" type="PanelContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/JoinPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="IPRow" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/JoinPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="IPLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/JoinPanel/VBoxContainer/IPRow"]
+layout_mode = 2
+text = "服务器 IP："
+theme_override_font_sizes/font_size = 18
+
+[node name="IPInput" type="LineEdit" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/JoinPanel/VBoxContainer/IPRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "127.0.0.1"
+theme_override_font_sizes/font_size = 20
+
+[node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/JoinPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ConnectButton" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/JoinPanel/VBoxContainer/ButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 44)
+text = "连接"
+theme_override_font_sizes/font_size = 20
+
+[node name="CancelJoinButton" type="Button" parent="CenterContainer/Panel/MarginContainer/VBoxContainer/JoinPanel/VBoxContainer/ButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 44)
+text = "取消"
+theme_override_font_sizes/font_size = 20
+
+[node name="StatusLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "输入名字 → 选择创建或加入房间"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.8, 0.85, 0.9, 1)

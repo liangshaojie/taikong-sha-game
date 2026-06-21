@@ -1,8 +1,11 @@
 #!/bin/bash
-# Phase 2 测试脚本：在新终端窗口启动一个 client 实例
+# Phase 2 测试脚本：启动一个 client 实例
 # 用法：bash scripts/start_client.sh             # 使用 Standard (GDScript) 版本
 #      bash scripts/start_client.sh --mono      # 使用 Mono (GDScript + C#) 版本
 #      bash scripts/start_client.sh --path=...  # 指定自定义 Godot 路径
+#
+# 流程：在主菜单输入名字 → 点"加入房间" → 输入 127.0.0.1 → 连接
+# 同步操作：另一个窗口/编辑器里 F5 → 主菜单 → 点"创建房间"
 
 set -e
 
@@ -48,7 +51,6 @@ find_godot() {
 	return 1
 }
 
-# 用户自定义路径优先
 if [ -n "$CUSTOM_PATH" ] && [ -x "$CUSTOM_PATH" ]; then
 	GODOT_BIN="$CUSTOM_PATH"
 elif [ "$USE_MONO" = true ]; then
@@ -59,13 +61,8 @@ else
 	GODOT_BIN=$(find_godot "${MONO_CANDIDATES[@]}") || true
 fi
 
-# === 错误处理 ===
 if [ -z "$GODOT_BIN" ]; then
 	echo "❌ 找不到 Godot 可执行文件"
-	echo ""
-	echo "已尝试以下路径："
-	printf "  - %s\n" "${STANDARD_CANDIDATES[@]}"
-	printf "  - %s\n" "${MONO_CANDIDATES[@]}"
 	echo ""
 	echo "可以这样做："
 	echo "  1) 把 Godot.app 拖到 /Applications/"
@@ -74,13 +71,15 @@ if [ -z "$GODOT_BIN" ]; then
 	exit 1
 fi
 
-# === 启动 ===
-echo "🚀 启动 client 实例..."
+echo "🚀 启动游戏实例..."
 echo "   项目: $PROJECT_DIR"
 echo "   Godot: $GODOT_BIN"
 echo "   版本: $("$GODOT_BIN" --version 2>&1 | head -1)"
 echo ""
-echo "💡 在另一个窗口/编辑器里按 F5 启动 host，再回到这里跑这个脚本"
-echo "关闭 client 窗口即退出"
+echo "📋 测试流程："
+echo "   1) 在 Godot 编辑器里按 F5 → 主菜单 → 点 '🏠 创建房间'"
+echo "   2) 回到这个终端窗口：主菜单 → 点 '🚪 加入房间'"
+echo "   3) 输入 127.0.0.1 → 点 '连接'"
+echo "   4) 两边都进入大厅后，在 Host 窗口点 '🎮 开始游戏'"
 
-exec "$GODOT_BIN" --path "$PROJECT_DIR" -- --client
+exec "$GODOT_BIN" --path "$PROJECT_DIR"
