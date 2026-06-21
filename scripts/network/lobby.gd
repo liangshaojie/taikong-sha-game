@@ -121,8 +121,12 @@ func register_self(info: Dictionary) -> void:
 	var sender_id := multiplayer.get_remote_sender_id()
 	info["peer_id"] = sender_id
 	info["color"] = get_color_for_peer(sender_id)
+	var is_new := not players.has(sender_id)
 	players[sender_id] = info
 	print("[Lobby] Registered peer %d as '%s'" % [sender_id, info.name])
+	# 服务端本地也要通知 UI（rpc 是 call_remote，不会本地执行 receive_player_list）
+	if is_new:
+		peer_joined.emit(sender_id, info)
 	_broadcast_player_list()
 
 @rpc("authority", "call_remote", "reliable")
@@ -147,7 +151,11 @@ func _on_peer_connected(peer_id: int) -> void:
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	print("[Lobby] Peer %d left" % peer_id)
+	var existed := players.has(peer_id)
 	players.erase(peer_id)
+	# 服务端本地也要通知 UI
+	if existed:
+		peer_left.emit(peer_id)
 	_broadcast_player_list()
 
 func _on_connected_to_server() -> void:
