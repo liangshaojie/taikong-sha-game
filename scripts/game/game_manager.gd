@@ -353,6 +353,10 @@ func _get_player_position(peer_id: int) -> Vector2:
 		return (node as Node2D).global_position
 	return Vector2.ZERO
 
+func _get_player_node(peer_id: int) -> Node:
+	# 通过节点路径查找玩家节点（用于 vent 等需要访问 Node 的逻辑）
+	return get_tree().root.get_node_or_null("Main/Players/" + str(peer_id))
+
 func _count_alive() -> int:
 	var count := 0
 	for info in player_roles.values():
