@@ -37,6 +37,12 @@ var _votes: Dictionary = {}                 # voter_peer_id -> target_peer_id (-
 func _ready() -> void:
 	Lobby.game_starting.connect(_on_game_starting)
 
+# 当 Lobby 通知游戏场景即将加载时，服务端自动开始分配角色
+# 这样 main.gd 不需要显式调用 start_game_session()
+func _on_game_starting(_path: String) -> void:
+	if multiplayer.is_server():
+		start_game_session()
+
 # ============================================================
 # Public API - 服务端调用
 # ============================================================

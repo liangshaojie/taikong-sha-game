@@ -76,8 +76,6 @@ func _on_entered_game() -> void:
 		for info in Lobby.get_player_list():
 			_spawn_player_for_info(info)
 		_show_status("🟢 Host. 等待 GameManager 分配角色...")
-		# 触发角色分配
-		GameManager.start_game_session()
 	else:
 		_show_status("✅ Joined. Waiting...")
 
