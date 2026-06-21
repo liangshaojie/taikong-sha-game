@@ -92,9 +92,10 @@ func get_player_role(peer_id: int) -> int:
 	return Role.Kind.UNKNOWN
 
 func is_alive(peer_id: int) -> bool:
-	if player_roles.has(peer_id):
-		return player_roles[peer_id].alive
-	return false
+	# 角色未分配时默认认为是活着的（避免被误判成鬼魂）
+	if not player_roles.has(peer_id):
+		return true
+	return player_roles[peer_id].alive
 
 func am_i_alive() -> bool:
 	return is_alive(Lobby.get_my_id())
@@ -106,7 +107,9 @@ func am_i_impostor() -> bool:
 	return my_role == Role.Kind.IMPOSTOR
 
 func am_i_ghost() -> bool:
-	return my_role == Role.Kind.GHOST or not am_i_alive()
+	# 鬼魂 = 角色已分配且已死亡
+	# 角色还没分配时不算鬼魂（避免在分配前的瞬间被锁住）
+	return player_roles.has(Lobby.get_my_id()) and not is_alive(Lobby.get_my_id())
 
 # ============================================================
 # Server logic
@@ -131,9 +134,17 @@ func _assign_roles_and_begin() -> void:
 	for pid in player_roles:
 		print("  peer %d → %s" % [pid, Role.name_zh(player_roles[pid].role)])
 
-	# 告知每个客户端自己的角色
+	# 服务器本地直接设置自己的角色（rpc_id 不会本地执行）
+	var server_id := multiplayer.get_unique_id()
+	if player_roles.has(server_id):
+		my_role = player_roles[server_id].role
+		role_assigned.emit(my_role)
+		print("[GameManager] Server's role: %s" % Role.name_zh(my_role))
+
+	# 告知每个**客户端**自己的角色（跳过服务器自己）
 	for pid in player_roles:
-		rpc_id(pid, "client_receive_role", player_roles[pid].role)
+		if pid != server_id:
+			rpc_id(pid, "client_receive_role", player_roles[pid].role)
 
 	# 切换状态
 	game_state = State.PLAYING

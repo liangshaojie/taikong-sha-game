@@ -49,6 +49,8 @@ func _ready() -> void:
 
 	if Lobby.is_in_game():
 		_on_entered_game()
+		# 同步可能错过的状态（角色分配等 RPC 可能在 main.gd._ready 之前就完成了）
+		_sync_existing_state()
 	else:
 		_show_status("❌ Not in a network session. Return to menu.")
 
@@ -171,6 +173,16 @@ func _on_server_disconnected() -> void:
 
 func _back_to_menu() -> void:
 	get_tree().change_scene_to_file("res://scenes/lobby/main_menu.tscn")
+
+func _sync_existing_state() -> void:
+	# 角色分配 RPC 可能在 _ready 连接 signal 之前就发出去了
+	# 这里手动检查并触发相应的 UI 更新
+	if GameManager.my_role != Role.Kind.UNKNOWN:
+		_on_role_assigned(GameManager.my_role)
+	if GameManager.game_state != GameManager.State.LOBBY:
+		_on_game_state_changed(GameManager.game_state)
+	if GameManager.game_state == GameManager.State.PLAYING:
+		_on_task_progress_changed(GameManager.tasks_completed, GameManager.TASK_TOTAL)
 
 func _show_status(msg: String) -> void:
 	if status_label:
