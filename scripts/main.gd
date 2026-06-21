@@ -13,15 +13,21 @@ const TASK_ZONE_SCENE: PackedScene = preload("res://scenes/game/task_zone.tscn")
 @onready var meeting_panel: Control = $UI/MeetingPanel
 @onready var result_panel: Control = $UI/ResultPanel
 
+# 玩家出生点（按 spawn 顺序，每个房间中心）
+# 6 房间：MedBay / Electrical / Storage / Cafeteria / Reactor / Navigation
 const SPAWN_POSITIONS := {
-	1: Vector2(330, 360),
-	2: Vector2(950, 360),
-	3: Vector2(640, 540),
+	1: Vector2(220, 185),    # MedBay
+	2: Vector2(640, 185),    # Electrical
+	3: Vector2(1060, 185),   # Storage
+	4: Vector2(220, 535),    # Cafeteria
+	5: Vector2(640, 535),    # Reactor
+	6: Vector2(1060, 535),   # Navigation
 }
 
 var _spawn_counter: int = 0
 
 func _grid_spawn_pos(idx: int) -> Vector2:
+	# 7 个以上玩家时自动用网格布局
 	var col: int = (idx - 1) % 4
 	var row: int = (idx - 1) / 4
 	return Vector2(160 + col * 320, 150 + row * 140)
@@ -99,16 +105,16 @@ func _spawn_task_zones() -> void:
 	if not Lobby.is_host():
 		return
 	var task_positions := [
-		{"id": "upload_1", "pos": Vector2(330, 200)},
-		{"id": "fix_wires", "pos": Vector2(950, 200)},
-		{"id": "calibrate", "pos": Vector2(640, 660)},
+		{"id": "calibrate",  "pos": Vector2(220, 185),  "label": "校准仪"},
+		{"id": "fix_wires",  "pos": Vector2(640, 185),  "label": "修线路"},
+		{"id": "upload",     "pos": Vector2(1060, 185), "label": "上传数据"},
 	]
 	for info in task_positions:
 		var zone: Node = TASK_ZONE_SCENE.instantiate()
 		zone.name = "Task_" + info.id
 		zone.position = info.pos
 		zone.task_id = info.id
-		zone.get_node("Label").text = "📋 " + info.id
+		zone.get_node("Label").text = "📋 " + info.label
 		$Tasks.add_child(zone)
 		print("[Main] Task zone '%s' at %s" % [info.id, info.pos])
 

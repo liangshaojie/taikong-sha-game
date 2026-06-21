@@ -1,97 +1,242 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=25 format=3]
 
-[sub_resource type="RectangleShape2D" id="RectShape_H"]
-size = Vector2(1280, 60)
+[sub_resource type="RectangleShape2D" id="Wall_H_Outer"]
+size = Vector2(1260, 20)
 
-[sub_resource type="RectangleShape2D" id="RectShape_V"]
-size = Vector2(60, 720)
+[sub_resource type="RectangleShape2D" id="Wall_V_Outer"]
+size = Vector2(20, 680)
 
-[sub_resource type="RectangleShape2D" id="RectShape_MidTop"]
-size = Vector2(80, 260)
+[sub_resource type="RectangleShape2D" id="Wall_V_Top1"]
+size = Vector2(40, 115)
 
-[sub_resource type="RectangleShape2D" id="RectShape_MidBot"]
-size = Vector2(80, 260)
+[sub_resource type="RectangleShape2D" id="Wall_V_Bot1"]
+size = Vector2(40, 115)
+
+[sub_resource type="RectangleShape2D" id="Wall_V_Top2"]
+size = Vector2(40, 115)
+
+[sub_resource type="RectangleShape2D" id="Wall_V_Bot2"]
+size = Vector2(40, 115)
+
+[sub_resource type="RectangleShape2D" id="Wall_V_Top3"]
+size = Vector2(40, 115)
+
+[sub_resource type="RectangleShape2D" id="Wall_V_Bot3"]
+size = Vector2(40, 115)
+
+[sub_resource type="RectangleShape2D" id="Wall_V_Top4"]
+size = Vector2(40, 115)
+
+[sub_resource type="RectangleShape2D" id="Wall_V_Bot4"]
+size = Vector2(40, 115)
+
+[sub_resource type="RectangleShape2D" id="Wall_H_Left1"]
+size = Vector2(150, 40)
+
+[sub_resource type="RectangleShape2D" id="Wall_H_Right1"]
+size = Vector2(150, 40)
+
+[sub_resource type="RectangleShape2D" id="Wall_H_Left2"]
+size = Vector2(150, 40)
+
+[sub_resource type="RectangleShape2D" id="Wall_H_Right2"]
+size = Vector2(150, 40)
+
+[sub_resource type="RectangleShape2D" id="Wall_H_Left3"]
+size = Vector2(150, 40)
+
+[sub_resource type="RectangleShape2D" id="Wall_H_Right3"]
+size = Vector2(150, 40)
 
 [node name="ShipMap" type="Node2D"]
 
 [node name="Background" type="ColorRect" parent="."]
 offset_right = 1280.0
 offset_bottom = 720.0
-color = Color(0.05, 0.07, 0.12, 1)
+color = Color(0.06, 0.07, 0.11, 1)
 
-[node name="Room1" type="ColorRect" parent="."]
-offset_left = 60.0
-offset_top = 60.0
-offset_right = 600.0
-offset_bottom = 660.0
-color = Color(0.18, 0.22, 0.30, 1)
+[node name="Rooms" type="Node2D" parent="."]
 
-[node name="Room2" type="ColorRect" parent="."]
-offset_left = 680.0
-offset_top = 60.0
-offset_right = 1220.0
-offset_bottom = 660.0
-color = Color(0.18, 0.22, 0.30, 1)
+[node name="MedBay" type="ColorRect" parent="Rooms"]
+offset_left = 30.0
+offset_top = 30.0
+offset_right = 410.0
+offset_bottom = 340.0
+color = Color(0.20, 0.28, 0.36, 1)
 
-[node name="Corridor" type="ColorRect" parent="."]
-offset_left = 600.0
-offset_top = 320.0
-offset_right = 680.0
-offset_bottom = 400.0
-color = Color(0.20, 0.25, 0.35, 1)
+[node name="Electrical" type="ColorRect" parent="Rooms"]
+offset_left = 450.0
+offset_top = 30.0
+offset_right = 830.0
+offset_bottom = 340.0
+color = Color(0.32, 0.30, 0.18, 1)
 
-[node name="CafeLabel" type="Label" parent="."]
-offset_left = 180.0
-offset_top = 350.0
-offset_right = 480.0
-offset_bottom = 400.0
-text = "☕ CAFETERIA"
+[node name="Storage" type="ColorRect" parent="Rooms"]
+offset_left = 870.0
+offset_top = 30.0
+offset_right = 1250.0
+offset_bottom = 340.0
+color = Color(0.32, 0.22, 0.18, 1)
+
+[node name="Cafeteria" type="ColorRect" parent="Rooms"]
+offset_left = 30.0
+offset_top = 380.0
+offset_right = 410.0
+offset_bottom = 690.0
+color = Color(0.30, 0.22, 0.18, 1)
+
+[node name="Reactor" type="ColorRect" parent="Rooms"]
+offset_left = 450.0
+offset_top = 380.0
+offset_right = 830.0
+offset_bottom = 690.0
+color = Color(0.32, 0.18, 0.18, 1)
+
+[node name="Navigation" type="ColorRect" parent="Rooms"]
+offset_left = 870.0
+offset_top = 380.0
+offset_right = 1250.0
+offset_bottom = 690.0
+color = Color(0.16, 0.20, 0.34, 1)
+
+[node name="Labels" type="Node2D" parent="."]
+
+[node name="MedBayLabel" type="Label" parent="Labels"]
+offset_left = 90.0
+offset_top = 160.0
+offset_right = 350.0
+offset_bottom = 200.0
+text = "🏥 MedBay  医疗"
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.7, 0.9, 1, 1)
 
-[node name="ReactorLabel" type="Label" parent="."]
-offset_left = 800.0
-offset_top = 350.0
-offset_right = 1100.0
-offset_bottom = 400.0
-text = "⚛ REACTOR"
+[node name="ElectricalLabel" type="Label" parent="Labels"]
+offset_left = 510.0
+offset_top = 160.0
+offset_right = 770.0
+offset_bottom = 200.0
+text = "⚡ Electrical  电气"
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1, 0.9, 0.5, 1)
 
-[node name="CorridorHint" type="Label" parent="."]
-offset_left = 600.0
-offset_top = 335.0
-offset_right = 680.0
-offset_bottom = 385.0
-text = "↔"
+[node name="StorageLabel" type="Label" parent="Labels"]
+offset_left = 930.0
+offset_top = 160.0
+offset_right = 1190.0
+offset_bottom = 200.0
+text = "📦 Storage  储物"
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1, 0.8, 0.6, 1)
+
+[node name="CafeteriaLabel" type="Label" parent="Labels"]
+offset_left = 90.0
+offset_top = 510.0
+offset_right = 350.0
+offset_bottom = 550.0
+text = "🍽 Cafeteria  餐厅"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1, 0.85, 0.7, 1)
+
+[node name="ReactorLabel" type="Label" parent="Labels"]
+offset_left = 510.0
+offset_top = 510.0
+offset_right = 770.0
+offset_bottom = 550.0
+text = "⚛ Reactor  反应堆"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1, 0.6, 0.6, 1)
+
+[node name="NavigationLabel" type="Label" parent="Labels"]
+offset_left = 930.0
+offset_top = 510.0
+offset_right = 1190.0
+offset_bottom = 550.0
+text = "🧭 Navigation  导航"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.7, 0.8, 1, 1)
 
 [node name="Walls" type="StaticBody2D" parent="."]
 
 [node name="TopWall" type="CollisionShape2D" parent="Walls"]
-position = Vector2(640, 30)
-shape = SubResource("RectShape_H")
+position = Vector2(640, 20)
+shape = SubResource("Wall_H_Outer")
 
 [node name="BottomWall" type="CollisionShape2D" parent="Walls"]
-position = Vector2(640, 690)
-shape = SubResource("RectShape_H")
+position = Vector2(640, 700)
+shape = SubResource("Wall_H_Outer")
 
 [node name="LeftWall" type="CollisionShape2D" parent="Walls"]
-position = Vector2(30, 360)
-shape = SubResource("RectShape_V")
+position = Vector2(20, 360)
+shape = SubResource("Wall_V_Outer")
 
 [node name="RightWall" type="CollisionShape2D" parent="Walls"]
-position = Vector2(1250, 360)
-shape = SubResource("RectShape_V")
+position = Vector2(1260, 360)
+shape = SubResource("Wall_V_Outer")
 
-[node name="MidWallTop" type="CollisionShape2D" parent="Walls"]
-position = Vector2(640, 190)
-shape = SubResource("RectShape_MidTop")
+[node name="V_MedBay_Elec_Top" type="CollisionShape2D" parent="Walls"]
+position = Vector2(430, 87)
+shape = SubResource("Wall_V_Top1")
 
-[node name="MidWallBot" type="CollisionShape2D" parent="Walls"]
-position = Vector2(640, 530)
-shape = SubResource("RectShape_MidBot")
+[node name="V_MedBay_Elec_Bot" type="CollisionShape2D" parent="Walls"]
+position = Vector2(430, 282)
+shape = SubResource("Wall_V_Bot1")
+
+[node name="V_Elec_Storage_Top" type="CollisionShape2D" parent="Walls"]
+position = Vector2(850, 87)
+shape = SubResource("Wall_V_Top2")
+
+[node name="V_Elec_Storage_Bot" type="CollisionShape2D" parent="Walls"]
+position = Vector2(850, 282)
+shape = SubResource("Wall_V_Bot2")
+
+[node name="V_Cafe_Reactor_Top" type="CollisionShape2D" parent="Walls"]
+position = Vector2(430, 437)
+shape = SubResource("Wall_V_Top3")
+
+[node name="V_Cafe_Reactor_Bot" type="CollisionShape2D" parent="Walls"]
+position = Vector2(430, 632)
+shape = SubResource("Wall_V_Bot3")
+
+[node name="V_Reactor_Nav_Top" type="CollisionShape2D" parent="Walls"]
+position = Vector2(850, 437)
+shape = SubResource("Wall_V_Top4")
+
+[node name="V_Reactor_Nav_Bot" type="CollisionShape2D" parent="Walls"]
+position = Vector2(850, 632)
+shape = SubResource("Wall_V_Bot4")
+
+[node name="H_MedBay_Cafe_Left" type="CollisionShape2D" parent="Walls"]
+position = Vector2(105, 360)
+shape = SubResource("Wall_H_Left1")
+
+[node name="H_MedBay_Cafe_Right" type="CollisionShape2D" parent="Walls"]
+position = Vector2(335, 360)
+shape = SubResource("Wall_H_Right1")
+
+[node name="H_Elec_Reactor_Left" type="CollisionShape2D" parent="Walls"]
+position = Vector2(525, 360)
+shape = SubResource("Wall_H_Left2")
+
+[node name="H_Elec_Reactor_Right" type="CollisionShape2D" parent="Walls"]
+position = Vector2(755, 360)
+shape = SubResource("Wall_H_Right2")
+
+[node name="H_Storage_Nav_Left" type="CollisionShape2D" parent="Walls"]
+position = Vector2(945, 360)
+shape = SubResource("Wall_H_Left3")
+
+[node name="H_Storage_Nav_Right" type="CollisionShape2D" parent="Walls"]
+position = Vector2(1175, 360)
+shape = SubResource("Wall_H_Right3")
