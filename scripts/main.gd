@@ -44,6 +44,11 @@ func _spawn_player(data: Variant) -> Node:
 	player.name = str(peer_id)
 	player.position = spawn_pos
 
+	# 关键：必须在节点加入树之前设置 authority
+	# 否则 MultiplayerSynchronizer 会丢失 network ID，同步失败
+	if peer_id > 0:
+		player.set_multiplayer_authority(peer_id)
+
 	# 替换 Sprite2D 颜色（每人不同颜色便于区分）
 	var sprite: Polygon2D = player.get_node("Sprite2D")
 	sprite.color = color
